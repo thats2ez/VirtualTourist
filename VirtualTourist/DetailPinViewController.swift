@@ -18,6 +18,7 @@ class DetailPinViewController: UIViewController {
     // MARK: -IBOutles
     @IBOutlet weak var mapView: MKMapView!
     
+    // MARK: -Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
 

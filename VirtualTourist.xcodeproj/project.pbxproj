@@ -20,6 +20,8 @@
 		C469961B1DD4536300F9BB2C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C469961A1DD4536300F9BB2C /* MapKit.framework */; };
 		C469961D1DD4572A00F9BB2C /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = C469961C1DD4572A00F9BB2C /* CoreDataStack.swift */; };
 		C469961F1DD5064000F9BB2C /* DetailPinViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C469961E1DD5064000F9BB2C /* DetailPinViewController.swift */; };
+		C46996221DD6F1DB00F9BB2C /* FlickrClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46996211DD6F1DB00F9BB2C /* FlickrClient.swift */; };
+		C46996241DD6F40200F9BB2C /* FlickrClientConstant.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46996231DD6F40200F9BB2C /* FlickrClientConstant.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +61,8 @@
 		C469961A1DD4536300F9BB2C /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		C469961C1DD4572A00F9BB2C /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 		C469961E1DD5064000F9BB2C /* DetailPinViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailPinViewController.swift; sourceTree = "<group>"; };
+		C46996211DD6F1DB00F9BB2C /* FlickrClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlickrClient.swift; sourceTree = "<group>"; };
+		C46996231DD6F40200F9BB2C /* FlickrClientConstant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlickrClientConstant.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +157,7 @@
 		C46996141DD39E8800F9BB2C /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				C46996201DD6F1BB00F9BB2C /* Flickr */,
 				C46996151DD39F5600F9BB2C /* Pin+CoreDataClass.swift */,
 				C46996161DD39F5600F9BB2C /* Pin+CoreDataProperties.swift */,
 				C469961C1DD4572A00F9BB2C /* CoreDataStack.swift */,
@@ -166,6 +171,15 @@
 				C469961A1DD4536300F9BB2C /* MapKit.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C46996201DD6F1BB00F9BB2C /* Flickr */ = {
+			isa = PBXGroup;
+			children = (
+				C46996211DD6F1DB00F9BB2C /* FlickrClient.swift */,
+				C46996231DD6F40200F9BB2C /* FlickrClientConstant.swift */,
+			);
+			name = Flickr;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -317,6 +331,8 @@
 				C469961D1DD4572A00F9BB2C /* CoreDataStack.swift in Sources */,
 				C46996181DD39F5600F9BB2C /* Pin+CoreDataProperties.swift in Sources */,
 				C468A56A1DD11FA80049ACB0 /* VirtualTourist.xcdatamodeld in Sources */,
+				C46996221DD6F1DB00F9BB2C /* FlickrClient.swift in Sources */,
+				C46996241DD6F40200F9BB2C /* FlickrClientConstant.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
