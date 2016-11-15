@@ -20,6 +20,7 @@ class MapViewController: UIViewController {
     let sharedContext = CoreDataStack.sharedInstance().persistentContainer.viewContext
     var selectedPin : Pin!
     var isEditMode = false
+    let flickrClient = FlickrClient.sharedClient()
     
     // MARK: -LifeCycle
     override func viewDidLoad() {
@@ -63,10 +64,23 @@ class MapViewController: UIViewController {
         let touchPoint = gestureRecognizer.location(in: mapView)
         let touchCoordinate : CLLocationCoordinate2D = mapView.convert(touchPoint, toCoordinateFrom: mapView)
         
+        let curPin = Pin(coordinate: touchCoordinate, context: sharedContext)
+        // At the begining of dropping pin
         if UIGestureRecognizerState.began == gestureRecognizer.state {
-            let pin = Pin(coordinate: touchCoordinate, context: sharedContext)
-            mapView.addAnnotation(pin)
+            mapView.addAnnotation(curPin)
             CoreDataStack.sharedInstance().saveContext()
+        }
+        // At the end of dropping pin
+        if UIGestureRecognizerState.ended == gestureRecognizer.state {
+            flickrClient.getPhotosForPin(pin: curPin) { success, errorString in
+                curPin.isDownloading = false
+                if (!success) {
+                    print("Error happened gesture end downloading photos")
+                    print(errorString!)
+                    return
+                }
+                CoreDataStack.sharedInstance().saveContext()
+            }
         }
     }
     

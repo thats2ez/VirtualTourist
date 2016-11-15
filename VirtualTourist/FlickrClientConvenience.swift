@@ -16,6 +16,19 @@ extension FlickrClient {
     }
     
     func getPhotosForPin(pin: Pin, completionHandler: @escaping (_ sucess: Bool, _ errorString: String?) -> Void) {
+        if (pin.isDownloading) {
+            return
+        }
+        pin.isDownloading = true
+        getPhotosOfPinFromFlickr(pin: pin) {sucess, errorString in
+            pin.isDownloading = false
+            CoreDataStack.sharedInstance().saveContext()
+            NotificationCenter.default.post(Notification(name: Notification.Name(rawValue: FlickrNotification.pinFinishedDownloadingNotification), object: self, userInfo: nil))
+            completionHandler(sucess, errorString)
+        }
+    }
+    
+    func getPhotosOfPinFromFlickr(pin: Pin, completionHandler: @escaping (_ sucess: Bool, _ errorString: String?) -> Void) {
         
         // see if we previously  received total number of pages for pin
         var pageNumber = 1

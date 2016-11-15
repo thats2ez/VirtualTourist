@@ -73,4 +73,8 @@ extension FlickrClient {
         static let LON_MIN = -180.0
         static let LON_MAX = 180.0
     }
+    
+    struct FlickrNotification {
+        static let pinFinishedDownloadingNotification = "pinFinishedDownloadNotification"
+    }
 }
