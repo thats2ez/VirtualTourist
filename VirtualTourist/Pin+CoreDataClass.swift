@@ -2,7 +2,7 @@
 //  Pin+CoreDataClass.swift
 //  VirtualTourist
 //
-//  Created by Yang Ji on 11/9/16.
+//  Created by Yang Ji on 11/14/16.
 //  Copyright © 2016 Yang Ji. All rights reserved.
 //
 
@@ -30,5 +30,5 @@ public class Pin: NSManagedObject, MKAnnotation {
         return CLLocationCoordinate2D(latitude: latitude, longitude: longtitude)
     }
     
-
+    
 }

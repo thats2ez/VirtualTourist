@@ -30,7 +30,7 @@ class FlickrClient: NSObject {
 
     
     // Create URL by given parameters NSURLComponent()
-    private func createURLFromParameters(parameters: [String: AnyObject]) -> URL {
+    func createURLFromParameters(parameters: [String: AnyObject]) -> URL {
         
         var components = URLComponents()
         components.scheme = Flickr.APIScheme
@@ -46,11 +46,19 @@ class FlickrClient: NSObject {
         return components.url!
     }
     
-    // TODO: get data by sending searchphoto url to service
-    private func getImageFromFlickrBySearch(methodParameters : [String: AnyObject], completionHandler : @escaping (_ results: AnyObject?, _ error: NSError?)->Void) -> URLSessionTask {
+    // Get data by sending GET request to service
+    func taskForGETMethod(urlString: String?, methodParameters : [String: AnyObject]?, completionHandler : @escaping (_ results: AnyObject?, _ error: NSError?)->Void) {
         
         session = URLSession.shared
-        let request = URLRequest(url: createURLFromParameters(parameters: methodParameters))
+        
+        var requestURL : URL {
+            if (urlString != nil) {
+                return URL(string: urlString!)!
+            } else {
+                return createURLFromParameters(parameters: methodParameters!)
+            }
+        }
+        let request = URLRequest(url: requestURL)
         let task = session.dataTask(with: request) { data, urlResponse, error in
             
             /* GUARD: Was there an error? */
@@ -95,7 +103,6 @@ class FlickrClient: NSObject {
             }
         }
         task.resume()
-        return task
     }
     
     // TODO: once get the data, we need to parse the data to photos

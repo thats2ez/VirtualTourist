@@ -13,11 +13,6 @@ extension FlickrClient {
         static let APIScheme = "https"
         static let APIHost = "api.flickr.com"
         static let APIPath = "/services/rest"
-        
-        static let SearchBBoxHalfWidth = 1.0
-        static let SearchBBoxHalfHeight = 1.0
-        static let SearchLatRange = (-90.0, 90.0)
-        static let SearchLonRange = (-180.0, 180.0)
     }
     
     // MARK: Flickr Parameter Keys
@@ -62,5 +57,20 @@ extension FlickrClient {
     struct FlickrError {
         static let DomainErrorGETImage = "GetImageTaskBySearch"
         static let DomainErrorParseData = "parseJSONWithData"
+        static let DomainErrorDownloadImage = "Downloading Image"
+        static let ErrorCodeTwo = "Network connection lost"
+        static let ErrorDuringFetch = "A technical error occured while fetching photos"
+        static let NotFoundPhotoKey = "Not Found key word 'Photo'"
+        static let NotFoundPhotosKey = "Not Fount key word 'Photos'"
+    }
+    
+    
+    struct BBoxParameters {
+        static let BOUNDING_BOX_HALF_WIDTH = 1.0
+        static let BOUNDING_BOX_HALF_HEIGHT = 1.0
+        static let LAT_MIN = -90.0
+        static let LAT_MAX = 90.0
+        static let LON_MIN = -180.0
+        static let LON_MAX = 180.0
     }
 }
