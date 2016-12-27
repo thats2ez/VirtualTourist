@@ -48,7 +48,7 @@ class MapViewController: UIViewController {
     
     // MARK: -IBAction functions
     // once the user toggle the EditBarButton on the top right, it will change the isEditMode status
-    @IBAction func toggleEditBarButton(_ sender: UIBarButtonItem) {
+    @IBAction private func toggleEditBarButton(_ sender: UIBarButtonItem) {
         if isEditMode {
             isEditMode = false
             editBarButton.title = EditBarButtonTitle.editTitle
@@ -58,34 +58,21 @@ class MapViewController: UIViewController {
         }
     }
     
-    // MARK: -Helper functions
+    // MARK: - Private
+    
     // long press on the mapView to drop annotation on the screen
-    func longPressDropAnnotation(gestureRecognizer: UIGestureRecognizer) {
-        let touchPoint = gestureRecognizer.location(in: mapView)
-        let touchCoordinate : CLLocationCoordinate2D = mapView.convert(touchPoint, toCoordinateFrom: mapView)
-        
-        let curPin = Pin(coordinate: touchCoordinate, context: sharedContext)
-        // At the begining of dropping pin
-        if UIGestureRecognizerState.began == gestureRecognizer.state {
-            mapView.addAnnotation(curPin)
-            CoreDataStack.sharedInstance().saveContext()
-        }
+    @objc private func longPressDropAnnotation(gestureRecognizer: UIGestureRecognizer) {
         // At the end of dropping pin
         if UIGestureRecognizerState.ended == gestureRecognizer.state {
-            flickrClient.getPhotosForPin(pin: curPin) { success, errorString in
-                curPin.isDownloading = false
-                if (!success) {
-                    print("Error happened gesture end downloading photos")
-                    print(errorString!)
-                    return
-                }
-                CoreDataStack.sharedInstance().saveContext()
-            }
+            let touchPoint = gestureRecognizer.location(in: mapView)
+            let touchCoordinate : CLLocationCoordinate2D = mapView.convert(touchPoint, toCoordinateFrom: mapView)
+            let curPin = createPinAndGetPhotos(at: touchCoordinate)
+            mapView.addAnnotation(curPin)
         }
     }
     
     // fetching our Pins and adding them to our map when starting our app
-    func fetchAllPins() -> [Pin] {
+    private func fetchAllPins() -> [Pin] {
         let fetchRequest = NSFetchRequest<Pin>(entityName: "Pin")
         var pins : [Pin] = []
         do {
@@ -97,7 +84,29 @@ class MapViewController: UIViewController {
         }
         return pins
     }
-
+    
+    private func createPinAndGetPhotos(at coordinate: CLLocationCoordinate2D) -> Pin {
+        let pin = Pin(coordinate: coordinate, context: sharedContext)
+        flickrClient.getPhotosForPin(pin: pin) { success, errorString in
+            pin.isDownloading = false
+            if (!success) {
+                print("Error happened gesture end downloading photos")
+                print(errorString!)
+                return
+            }
+            CoreDataStack.sharedInstance().saveContext()
+        }
+        return pin
+    }
+    
+    // MARK: -Navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == SegueIdentifier.detailPinIdentifier {
+            let controller = segue.destination as! DetailPinViewController
+            controller.curPin = selectedPin
+            controller.curMapRegion = mapView.region
+        }
+    }
 }
 
 // MARK: -MKMapViewDelegate class extends MapViewController
@@ -152,9 +161,10 @@ extension MapViewController: MKMapViewDelegate {
         }
     }
     
-    // MARK: -Helper Funcions
+    // MARK: - Private
+    
     // show alert function ask user if he/she want to delete the select PIN
-    func showDeletePinAlertViewController(vcTitle: String, vcMessage: String) {
+    private func showDeletePinAlertViewController(vcTitle: String, vcMessage: String) {
         let alert = UIAlertController(title: vcTitle, message: vcMessage, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: Alert.AlertActionTitle.cancelTitle, style: .cancel, handler: nil))
         alert.addAction(UIAlertAction(title: Alert.AlertActionTitle.deleteTilte, style: .default, handler: { (action) in
@@ -164,27 +174,16 @@ extension MapViewController: MKMapViewDelegate {
         present(alert, animated: true, completion: (() -> Void)? {
             self.isEditMode = false;
             self.editBarButton.title = EditBarButtonTitle.editTitle
-            })
+        })
         
     }
     
     // Delete selected pin function
-    func deleteSelectedPin(pin: Pin) {
+    private func deleteSelectedPin(pin: Pin) {
         mapView.removeAnnotation(pin)
         sharedContext.delete(pin)
         CoreDataStack.sharedInstance().saveContext()
     }
-    
-    // MARK: -Navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == SegueIdentifier.detailPinIdentifier {
-            let controller = segue.destination as! DetailPinViewController
-            controller.curPin = selectedPin
-            controller.curMapRegion = mapView.region
-        }
-    }
-    
-    
 }
 
 // MARK: -Constant Class of MapViewController

@@ -11,7 +11,7 @@ import CoreData
 
 extension FlickrClient {
     
-    var sharedContext: NSManagedObjectContext {
+    private var sharedContext: NSManagedObjectContext {
         return CoreDataStack.sharedInstance().persistentContainer.viewContext
     }
     
@@ -28,7 +28,9 @@ extension FlickrClient {
         }
     }
     
-    func getPhotosOfPinFromFlickr(pin: Pin, completionHandler: @escaping (_ sucess: Bool, _ errorString: String?) -> Void) {
+    // MARK: - Private
+    
+    private func getPhotosOfPinFromFlickr(pin: Pin, completionHandler: @escaping (_ sucess: Bool, _ errorString: String?) -> Void) {
         
         // see if we previously  received total number of pages for pin
         var pageNumber = 1
@@ -66,32 +68,19 @@ extension FlickrClient {
                 return
             }
             
-            if let photosDictionary = JSONResult?.value(forKey: FlickrResponseKeys.Photos) as? [String: AnyObject] {
-                if let photosArray = photosDictionary[FlickrResponseKeys.Photo] as? [[String:AnyObject]], let numPages = photosDictionary[FlickrResponseKeys.Pages] as? Int {
-                    performUIUpdatesOnMain {
-                        pin.numPages = Int16(numPages)
-                        
-                        for photoDictionary in photosArray {
-                            let photoURLString = photoDictionary[FlickrResponseKeys.MediumURL] as! String
-                            let photo = Photo(photoURL: photoURLString, pin: pin, context: self.sharedContext)
-                            
-                            self.downloadImageForPhoto(photo: photo, completionHandler: { (sucess, error) in
-                                if sucess {
-                                    performUIUpdatesOnMain {
-                                        CoreDataStack.sharedInstance().saveContext()
-                                        completionHandler(true, nil)
-                                    }
-                                } else {
-                                    performUIUpdatesOnMain {
-                                        completionHandler(false, error?.description)
-                                    }
-                                }
-                            })
-                        }
+            if let photosDictionary = JSONResult?.value(forKey: FlickrResponseKeys.Photos) as? [String: AnyObject],
+                let photosArray = photosDictionary[FlickrResponseKeys.Photo] as? [[String:AnyObject]],
+                let numPages = photosDictionary[FlickrResponseKeys.Pages] as? Int {
+                performUIUpdatesOnMain {
+                    pin.numPages = Int16(numPages)
+                    
+                    for photoDictionary in photosArray {
+                        let photoURLString = photoDictionary[FlickrResponseKeys.MediumURL] as! String
+                        let photo = Photo(photoURL: photoURLString, pin: pin, context: self.sharedContext)
+                        self.prefetchImage(for: photo)
                     }
-                } else {
-                    completionHandler(false, FlickrError.NotFoundPhotoKey)
                 }
+                completionHandler(true, nil)
             } else {
                 completionHandler(false, FlickrError.NotFoundPhotosKey)
             }
@@ -100,14 +89,18 @@ extension FlickrClient {
         
     }
     
-    func downloadImageForPhoto(photo:Photo, completionHandler: @escaping (_ sucess:Bool, _ error: NSError?) -> Void) {
+    private func prefetchImage(for photo: Photo) {
+        downloadImageForPhoto(photo: photo) { _ in }
+    }
+    
+    private func downloadImageForPhoto(photo:Photo, completionHandler: @escaping (_ error: NSError?) -> Void) {
         
         taskForGETMethod(urlString: photo.photoURL, methodParameters: nil) { JSONResult, error in
             
             /* GUARD: Was there an error? */
             guard (error == nil) else {
                 print("There was an error with downloading: \(error)")
-                completionHandler(false, error)
+                completionHandler(error)
                 return
             }
             
@@ -120,15 +113,15 @@ extension FlickrClient {
                     
                     FileManager.default.createFile(atPath: fileURL.path, contents: result as? Data, attributes: nil)
                     photo.imagePath = fileURL.path
-                    completionHandler(true, nil)
+                    completionHandler(nil)
                 }
             } else {
-                completionHandler(false, NSError(domain: FlickrError.DomainErrorDownloadImage, code: 2, userInfo: nil))
+                completionHandler(NSError(domain: FlickrError.DomainErrorDownloadImage, code: 2, userInfo: nil))
             }
         }
     }
     
-    func createBoundingBoxString(pin: Pin) -> String {
+    private func createBoundingBoxString(pin: Pin) -> String {
         
         let latitude = pin.coordinate.latitude
         let longitude = pin.coordinate.longitude

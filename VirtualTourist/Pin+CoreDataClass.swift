@@ -26,8 +26,6 @@ public class Pin: NSManagedObject, MKAnnotation {
         longtitude = coordinate.longitude
     }
     
-    
-    
     public var coordinate: CLLocationCoordinate2D {
         return CLLocationCoordinate2D(latitude: latitude, longitude: longtitude)
     }

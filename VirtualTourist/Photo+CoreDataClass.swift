@@ -33,7 +33,9 @@ public class Photo: NSManagedObject {
         return nil
     }
     
-    func getFileURL() -> URL {
+    // MARK: - Private
+    
+    private func getFileURL() -> URL {
         let filename = (imagePath! as NSString).lastPathComponent
         let dirPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
         let pathArray : [String] = [dirPath, filename]

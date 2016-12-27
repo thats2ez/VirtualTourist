@@ -27,24 +27,6 @@ class FlickrClient: NSObject {
     class func sharedClient() -> FlickrClient {
         return sharedInstance
     }
-
-    
-    // Create URL by given parameters NSURLComponent()
-    func createURLFromParameters(parameters: [String: AnyObject]) -> URL {
-        
-        var components = URLComponents()
-        components.scheme = Flickr.APIScheme
-        components.host = Flickr.APIHost
-        components.path = Flickr.APIPath
-        components.queryItems = [URLQueryItem]()
-        
-        for (key, value) in parameters {
-            let queryItem = URLQueryItem(name: key, value: "\(value)")
-            components.queryItems?.append(queryItem)
-        }
-        
-        return components.url!
-    }
     
     // Get data by sending GET request to service
     func taskForGETMethod(urlString: String?, methodParameters : [String: AnyObject]?, completionHandler : @escaping (_ results: AnyObject?, _ error: NSError?)->Void) {
@@ -95,14 +77,40 @@ class FlickrClient: NSObject {
             
             let parseResult : AnyObject
             do {
-                parseResult = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
+                // HACK: use a better networking library
+                if urlString?.hasSuffix(".jpg") ?? false {
+                    parseResult = data as AnyObject
+                } else {
+                    parseResult = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
+                }
                 completionHandler(parseResult, nil)
             } catch {
+                print("urlString: \(urlString)")
+                print("error: \(error)")
                 let userInfo = [NSLocalizedDescriptionKey : "Could not parse the data as JSON: '\(data)'"]
                 completionHandler(nil, NSError(domain: FlickrError.DomainErrorParseData, code: 1, userInfo: userInfo))
             }
         }
         task.resume()
+    }
+    
+    // MARK: - Private
+    
+    // Create URL by given parameters NSURLComponent()
+    private func createURLFromParameters(parameters: [String: AnyObject]) -> URL {
+        
+        var components = URLComponents()
+        components.scheme = Flickr.APIScheme
+        components.host = Flickr.APIHost
+        components.path = Flickr.APIPath
+        components.queryItems = [URLQueryItem]()
+        
+        for (key, value) in parameters {
+            let queryItem = URLQueryItem(name: key, value: "\(value)")
+            components.queryItems?.append(queryItem)
+        }
+        
+        return components.url!
     }
     
     // TODO: once get the data, we need to parse the data to photos
